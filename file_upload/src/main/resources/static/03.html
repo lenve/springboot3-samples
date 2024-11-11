@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>断点续传示例</title>
+</head>
+<body>
+<input type="file" id="fileInput"/>
+<button onclick="startUpload()">开始上传</button>
+
+<script>
+    async function startUpload() {
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+        if (!file) {
+            alert("请选择文件");
+            return;
+        }
+
+        const filename = file.name;
+        let start = await checkFile(filename);
+
+        uploadFile(file, start);
+    }
+
+    async function checkFile(filename) {
+        const response = await fetch(`/file/check?filename=${filename}`);
+        const start = await response.json();
+        return start;
+    }
+
+    async function uploadFile(file, start) {
+        const chunkSize = 1024 * 1024; // 每个分片1MB
+        const total = Math.ceil((file.size - start) / chunkSize);
+
+        for (let i = 0; i < total; i++) {
+            const chunkStart = start + i * chunkSize;
+            const chunkEnd = Math.min(chunkStart + chunkSize, file.size);
+            const chunk = file.slice(chunkStart, chunkEnd);
+
+            const formData = new FormData();
+            formData.append('file', chunk);
+            formData.append('start', chunkStart);
+            formData.append('fileName', file.name);
+
+            const response = await fetch('/file/upload2', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.text();
+            if (response.ok) {
+                console.log(`分片 ${i + 1}/${total} 上传成功`);
+            } else {
+                console.error(`分片 ${i + 1}/${total} 上传失败: ${result}`);
+                break;
+            }
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>秒传</title>
+    <script src="spark-md5.js"></script>
+</head>
+<body>
+<input type="file" id="fileInput" />
+<button onclick="startUpload()">开始上传</button>
+<hr>
+<script>
+    async function startUpload() {
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+        if (!file) {
+            alert("请选择文件");
+            return;
+        }
+
+        const md5 = await calculateMd5(file);
+        const formData = new FormData();
+        formData.append('md5', md5);
+
+        const response = await fetch('/file/upload1', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.text();
+        if (response.ok) {
+            if (result != "文件已存在") {
+                // 开始上传文件
+            }
+        } else {
+            console.error("上传失败: " + result);
+        }
+    }
+
+    function calculateMd5(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const spark = new SparkMD5.ArrayBuffer();
+                spark.append(reader.result);
+                resolve(spark.end());
+            };
+            reader.onerror = () => reject(reader.error);
+            reader.readAsArrayBuffer(file);
+        });
+    }
+</script>
+</body>
+</html>
