@@ -20,6 +20,15 @@ public class Main {
             System.out.println("CorePoolSize:" + dynamicThreadPool.getThreadPoolExecutor().getCorePoolSize());
             System.out.println("MaximumPoolSize:" + dynamicThreadPool.getThreadPoolExecutor().getMaximumPoolSize());
             try {
+                for (int i = 0; i < 4; i++) {
+                    dynamicThreadPool.getThreadPoolExecutor().execute(() -> {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                }
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 e.printStackTrace();

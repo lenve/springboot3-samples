@@ -52,4 +52,14 @@ public class DynamicThreadPoolMBean extends StandardMBean implements DynamicThre
     public void setMaximumPoolSize(int maximumPoolSize) {
         dynamicThreadPool.setMaximumPoolSize(maximumPoolSize);
     }
+
+    @Override
+    public int getActiveCount() {
+        return dynamicThreadPool.getThreadPoolExecutor().getActiveCount();
+    }
+
+    @Override
+    public float getActiveRatio() {
+        return getActiveCount() * 1.0f / dynamicThreadPool.getThreadPoolExecutor().getPoolSize();
+    }
 }

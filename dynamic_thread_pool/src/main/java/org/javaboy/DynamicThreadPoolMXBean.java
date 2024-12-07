@@ -14,4 +14,6 @@ public interface DynamicThreadPoolMXBean {
     void setCorePoolSize(int corePoolSize);
     int getMaximumPoolSize();
     void setMaximumPoolSize(int maximumPoolSize);
+    int getActiveCount();
+    float getActiveRatio();
 }
